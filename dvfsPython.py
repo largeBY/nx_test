@@ -48,7 +48,7 @@ import numpy as np
 import signal
 
 # Please select one of the following MACHINE choices by editing the variable. ("v100-maxq" is V100 GPU with TDP 163 W; "v100-300w" is V100 GPU with TDP 300 W; "a100-insp" is A100 GPU with TDP 400 W.)
-MACHINE = "v100-maxq"
+MACHINE = "rtx4090"
 # Other GPU types are not directly supported so far. To use this code for another GPU type, constants minSetFreq, freqAvgEff, maxFreq, setMemFreq, probFreqs, and the function getAvailableFreqs() need to be updated.
 
 selectGPU = -1 # select a GPU ID to apply the policy. -1 means all GPUs.
@@ -74,6 +74,12 @@ elif MACHINE == "a100-insp":
     maxFreq = 1410 # max freq supported.
     setMemFreq = 1593 # the only available memory freq value on this machine.
     probFreqs = [1110,1215,1320,1410] # frequency values for probing.
+elif MACHINE == "rtx4090":
+    minSetFreq = 1110 # The lower bound for setting frequency. Used in multiple policies.
+    freqAvgEff = 1110 # the globally most power efficient frequency based on experiments from many apps.
+    maxFreq = 3105 # max freq supported.
+    setMemFreq = 10501 # the only available memory freq value on this machine.
+    probFreqs = [1110,1650,2520,3105] # frequency values for probing.
 else:
     print("Please set correct MACHINE parameter or add your device.")
     sys.exit(0)
@@ -229,6 +235,15 @@ def getAvailableFreqs():
                 available_freqs.append(freq)
         """
         available_freqs = [210, 225, 240, 255, 270, 285, 300, 315, 330, 345, 360, 375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540, 555, 570, 585, 600, 615, 630, 645, 660, 675, 690, 705, 720, 735, 750, 765, 780, 795, 810, 825, 840, 855, 870, 885, 900, 915, 930, 945, 960, 975, 990, 1005, 1020, 1035, 1050, 1065, 1080, 1095, 1110, 1125, 1140, 1155, 1170, 1185, 1200, 1215, 1230, 1245, 1260, 1275, 1290, 1305, 1320, 1335, 1350, 1365, 1380, 1395, 1410]
+    elif MACHINE == "rtx4090":
+
+        freq = 210
+        available_freqs.append(freq)
+        while freq <= 3105:
+            freq += 15
+            if freq <= 3105:
+                available_freqs.append(freq)
+
     else:
         print("Should edit function getAvailableFreqs() to add available frequencies.")
         sys.exit(0)
